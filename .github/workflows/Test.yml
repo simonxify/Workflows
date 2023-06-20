@@ -8,46 +8,15 @@ jobs:
   add_to_column:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Add issue to project column
-        uses: actions/github-script@4
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /projects/columns/:column_id/cards
+          column_id: Todo
+          content_id: ${{ github.event.issue.id }}
+          content_type: Issue
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        with:
-          script: |
-            const {GitHub } = require("@actions/github");
-
-            async function run() {
-              const octokit = new GitHub(process.env.GITHUB_TOKEN);
-
-              // Retrieve the project board ID and column ID
-              const { data: projects } = await octokit.projects.listForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-
-              // Replace 'Project Board Name' with the actual name of your project board
-              const projectBoard = projects.find(
-                (project) => project.name === "Project Board Name"
-              );
-
-              // Replace 'Column Name' with the actual name of your column
-              const columnName = "Todo";
-
-              // Replace 'Label Name' with the name of the label that triggers the action
-              const labelName = "Label Name";
-              const labelHelp = "help wanted";
-
-              // Check if the added label matches the specified label
-              if (context.payload.label.name === labelName) {
-                // Create the issue card in the specified column
-                await octokit.projects.createCard({
-                  column_id: projectBoard.columns.find(
-                    (column) => column.name === columnName
-                  ).id,
-                  content_id: context.payload.issue.id,
-                  content_type: "Issue",
-                });
-              }
-            }
-
-            run();
