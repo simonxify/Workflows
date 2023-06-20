@@ -31,7 +31,7 @@ jobs:
               );
 
               // Replace 'Column Name' with the actual name of your column
-              const columnName = "Column Name";
+              const columnName = "Todo";
 
               // Replace 'Label Name' with the name of the label that triggers the action
               const labelName = "Label Name";
