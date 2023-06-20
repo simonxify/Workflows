@@ -14,9 +14,9 @@ jobs:
       - name: Add issue to project column
         uses: octokit/request-action@v2.x
         with:
-          route: POST /projects/columns/:column_id/cards
-          column_id: Todo
-          content_id: ${{ github.event.issue.id }}
-          content_type: Issue
+          route: POST /projects/columns/{column_id}/cards
+          route-columns: ${{ github.event.repository.owner.login }},${{ github.event.repository.name }},'Todo'
+          media-type: '{"previews":["inertia"]}'
+          card: '{"content_id":${{ github.event.issue.id }},"content_type":"Issue"}'
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
