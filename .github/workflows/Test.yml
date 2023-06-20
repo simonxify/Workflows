@@ -11,12 +11,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Add issue to project column
-        uses: octokit/request-action@v2.x
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          route: POST /projects/columns/{column_id}/cards
-          route-columns: ${{ github.event.repository.owner.login }},${{ github.event.repository.name }},'Todo'
-          media-type: '{"previews":["inertia"]}'
-          card: '{"content_id":${{ github.event.issue.id }},"content_type":"Issue"}'
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install @actions/github octokit/rest.js
+
+      - name: Add issue to project column
+        run: |
+          const { Octokit } = require("@octokit/rest");
+          const { context } = require("@actions/github");
+
+          const octokit = new Octokit({
+            auth: process.env.GITHUB_TOKEN,
+          });
+
+          const columnId = 'Todo';
+          const issueId = context.payload.issue.id;
+
+          octokit.projects.createCard({
+            column_id: columnId,
+            content_id: issueId,
+            content_type: "Issue",
+          });
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
