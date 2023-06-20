@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add issue to project column
-        uses: actions/github-script@v5
+        uses: actions/github-script@4
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         with:
