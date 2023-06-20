@@ -1,0 +1,54 @@
+name: Add Issue to Project Column
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  add_to_column:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add issue to project column
+        uses: actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const { context, GitHub } = require("@actions/github");
+
+            async function run() {
+              const octokit = new GitHub(process.env.GITHUB_TOKEN);
+
+              // Retrieve the project board ID and column ID
+              const { data: projects } = await octokit.projects.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+
+              // Replace 'Project Board Name' with the actual name of your project board
+              const projectBoard = projects.find(
+                (project) => project.name === "Project Board Name"
+              );
+
+              // Replace 'Column Name' with the actual name of your column
+              const columnName = "Column Name";
+
+              // Replace 'Label Name' with the name of the label that triggers the action
+              const labelName = "Label Name";
+              const labelHelp = "Help Wanted";
+
+              // Check if the added label matches the specified label
+              if (context.payload.label.name === labelName) {
+                // Create the issue card in the specified column
+                await octokit.projects.createCard({
+                  column_id: projectBoard.columns.find(
+                    (column) => column.name === columnName
+                  ).id,
+                  content_id: context.payload.issue.id,
+                  content_type: "Issue",
+                });
+              }
+            }
+
+            run();
+
